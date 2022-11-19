@@ -31,7 +31,8 @@ def trace(request):
         hop_list = []
         i_list = []
         line_list = []
-        command = ["tracert", "-h", "30", website]    
+#         command = ["tracert", "-h", "30", website]
+        command = ["traceroute", "-I", "--max-hop=30", website]
         with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as process:
             for i, line in enumerate(process.stdout):
                 ip = get_ip_from_line(line, i)
