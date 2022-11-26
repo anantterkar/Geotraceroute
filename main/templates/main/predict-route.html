@@ -146,12 +146,25 @@
   
 <body>
 
-<form id="search" class="form-inline" action="" method="post">
-    {% csrf_token %}
-    <input id="host" class="form-control mr-sm-2" type="text" placeholder="www.facebook.com" aria-label="Search" 
-    name="host">
-    <input type="submit" value="OK">
-</form>
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="websites">Choose a website:</label>
+
+        <select name="websites" id="websites">
+            <option value="google">www.google.com</option>
+            <option value="twitter">www.twitter.com</option>
+            <option value="amazon">www.amazon.com</option>
+        </select>
+        <label for="mlModel">Choose a ML Model:</label>
+
+        <select name="mlModel" id="mlModel">
+            <option value="naive-bayes">Naive Bayes</option>
+            <option value="decision-trees">Decision Trees</option>
+            <option value="random-forest">Random forests</option>
+            <option value="neural-network">Neural Network</option>
+        </select>
+        <input type="submit" value="Predict">
+    </form>
 <div id="terminal" class=" terminal "></div>
 <div id="loading"></div>
 <div id="globeViz"></div>

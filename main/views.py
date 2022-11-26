@@ -5,6 +5,14 @@ import re
 import requests
 # Create your views here.
 
+import joblib
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from geopy.geocoders import Nominatim
 
 
 IP_PATTERN = re.compile(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})')
@@ -24,6 +32,11 @@ def get_ip_from_line(line, line_num):
         return None
     else:
         return None
+
+
+
+
+
 def trace(request):
     if request.method == 'POST':
         website = request.POST
@@ -31,9 +44,7 @@ def trace(request):
         hop_list = []
         i_list = []
         line_list = []
-#         command = ["tracert", "-h", "30", website]
-#         command = ["traceroute", "-I", "--max-hop=30", website]
-        command = ["traceroute", website]
+        command = ["tracert", "-h", "30", website]    
         with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as process:
             for i, line in enumerate(process.stdout):
                 ip = get_ip_from_line(line, i)
@@ -47,6 +58,7 @@ def trace(request):
                     geo_loc_msg = json.dumps({"type": "geo", "msg": ip_geolocation_data})
                     i_list.append(geo_loc_msg)
                     line_list.append(terminal_line)
+
     
 
     # my_list = json.dumps(i_list)
@@ -79,3 +91,47 @@ def trace(request):
     
     else :
         return render(request, 'main/index.html')
+
+
+def predict(request):
+    if request.method == 'POST':
+        print(request.POST)
+        website = request.POST
+        dest = website['websites']
+        website = "www." + dest + ".com"
+        print(website)
+        model_name = request.POST['mlModel']
+    
+        hop_list = []
+        i_list = []
+        line_list = []
+        command = ["tracert", "-h", "30", website]    
+        with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True) as process:
+            for i, line in enumerate(process.stdout):
+                ip = get_ip_from_line(line, i)
+                terminal_line = get_terminal_line(line, i)
+                if ip:
+                    print(ip)
+                    print(terminal_line)
+                    token = "761eab6307df4b"
+                    ip_geolocation_data = requests.get(f"https://ipinfo.io/{ip}?token={token}").json()
+                    hop_list.append(ip_geolocation_data)
+                    geo_loc_msg = json.dumps({"type": "geo", "msg": ip_geolocation_data})
+                    i_list.append(geo_loc_msg)
+                    line_list.append(terminal_line)
+
+        print(hop_list)
+        print(i_list)
+        # print(data)
+        data = json.dumps(hop_list)
+
+        context = {
+            'i_list' : i_list,
+            'line_list' : line_list,
+            'data' : data
+        }
+
+        # return render(request, 'main/index.html', context)
+        return render(request, 'main/predict-route.html', context)
+    else:
+        return render(request, 'main/predict-route.html')
