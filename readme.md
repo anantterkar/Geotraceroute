@@ -1,1 +1,1 @@
-this is the readme file
+This project was aimed at visualizing the network traffic
